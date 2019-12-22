@@ -3,6 +3,8 @@ import os
 s=""
 omits=0
 
+max_user_id= 1198785
+max_srch_dstn_id= 65107
 max_hotel_clusters= 99
 max_day= 516
 max_user_loc_ctry= 239
@@ -22,6 +24,12 @@ for chunkcount in range(1,39):
         s = "features/0"+str(chunkcount)
     else:
         s = "features/"+str(chunkcount)
+    user_ids = []
+    with open(s+"userid","rb") as file:
+        user_ids = pickle.load(file)
+    srch_dstn_ids = []
+    with open(s+"srch_dstn_id","rb") as file:
+        srch_dstn_ids = pickle.load(file)
     checkin=[]
     with open(s+"ci","rb") as file:
         checkin = pickle.load(file)
@@ -79,6 +87,8 @@ for chunkcount in range(1,39):
     srch_children_cnts2=[]
     srch_rm_cnts2=[]
     hotel_clusters2=[]
+    user_ids2 = []
+    srch_dstn_ids2 = []
     for i in range(n):
         if checkin[i]!="0" and checkout[i]!="0":
             delta = checkout[i] - checkin[i]
@@ -97,7 +107,10 @@ for chunkcount in range(1,39):
             srch_children_cnts2.append(srch_children_cnts[i])
             srch_rm_cnts2.append(srch_rm_cnts[i])
             hotel_clusters2.append(hotel_clusters[i])
-
+            user_ids2.append(user_ids[i])
+            srch_dstn_ids2.append(srch_dstn_ids[i])
+    user_ids=[]
+    srch_dstn_ids=[]
     is_bookings=[]
     user_location_countries=[]
     user_location_regions=[]
@@ -110,6 +123,8 @@ for chunkcount in range(1,39):
     srch_children_cnts=[]
     srch_rm_cnts=[]
     hotel_clusters=[]
+    print(len(user_ids2))
+    print(len(srch_dstn_ids2))
     print(len(is_bookings2))
     print(len(user_location_countries2))
     print(len(user_location_regions2))
@@ -125,6 +140,14 @@ for chunkcount in range(1,39):
     with open(s+"stay","wb") as file:
         stay_duration = [(x/max_day) for x in stay_duration]
         pickle.dump(stay_duration,file)
+    os.remove(s+"userid")
+    with open(s+"userid","wb") as file:
+        user_ids2 = [(x/max_user_id) for x in user_ids2]
+        pickle.dump(user_ids2,file)
+    os.remove(s+"srch_dstn_id")
+    with open(s+"srch_dstn_id","wb") as file:
+        srch_dstn_ids2 = [(x/max_srch_dstn_id) for x in srch_dstn_ids2]
+        pickle.dump(srch_dstn_ids2,file)
     os.remove(s+"hotel_clusters")
     with open(s+"hotel_clusters","wb") as file:
         pickle.dump(hotel_clusters2,file)
@@ -174,6 +197,8 @@ for chunkcount in range(1,39):
     omits += chunk_omits
     print(chunkcount,"processed. Omitted:",chunk_omits,omits)
     stay_duration = []
+    user_ids2 = []
+    srch_dstn_ids2 = []
     is_bookings2=[]
     user_location_countries2=[]
     user_location_regions2=[]
