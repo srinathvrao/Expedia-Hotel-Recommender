@@ -6,7 +6,7 @@ import pickle
 
 print("starting to read train")
 chunksize = 10 ** 6
-train = pd.read_csv("../Expedia_Dataset/train.csv",chunksize=chunksize,usecols=["is_booking","hotel_cluster",'user_location_country',"user_location_region","user_location_city","srch_destination_type_id","hotel_continent","hotel_country","hotel_market","srch_adults_cnt","srch_children_cnt","srch_rm_cnt","srch_ci","srch_co"])
+train = pd.read_csv("../Expedia_Dataset/train.csv",chunksize=chunksize,usecols=["is_booking","hotel_cluster",'user_location_country',"user_location_region","user_location_city","srch_destination_type_id","hotel_continent","hotel_country","hotel_market","srch_adults_cnt","srch_children_cnt","srch_rm_cnt","srch_ci","srch_co"],engine='python')
 print("read train.")
 
 checkin=[]
@@ -122,12 +122,11 @@ for chunk in train:
 		srch_rm_cnts.append(c)
 		if c>max_srch_rm:
 			max_srch_rm = c
-	
 	s=""
 	if chunkcount<10:
-		s = "0"+str(chunkcount)
+		s = "features/0"+str(chunkcount)
 	else:
-		s = str(chunkcount)
+		s = "features/"+str(chunkcount)
 	with open(s+"ci","wb") as file:
 		pickle.dump(checkin,file)
 	with open(s+"co","wb") as file:
@@ -185,8 +184,8 @@ for chunk in train:
 	checkout=[]
 	checkin=[]
 	chunkcount+=1
-    print("processed",chunkcount)
-	
+	print("processed",chunkcount)
+
 print("max_hotel_clusters=",max_hotel_clusters)
 print("max_day=",max_day)
 print("max_user_loc_ctry=",max_user_loc_ctry)

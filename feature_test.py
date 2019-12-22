@@ -28,18 +28,15 @@ max_hotel_mrkt= 2117
 max_srch_adults= 9
 max_srch_chdrn= 9
 max_srch_rm= 8
-
-for chunkcount in range(1,31):
-    nans=[]
+nans=[]
+for chunkcount in range(1,38):
     if chunkcount<10:
         s = "features/0"+str(chunkcount)
     else:
         s = "features/"+str(chunkcount)
-    nans = []
     with open(s+"nans","rb") as file:
-        nans = pickle.load(file)
+        nans.extend(pickle.load(file))
     print("nans",len(nans))
-    nans = []
     with open(s+"stay","rb") as file:
         stay.extend(pickle.load(file))
     with open(s+"isbook","rb") as file:
@@ -67,6 +64,8 @@ for chunkcount in range(1,31):
     with open(s+"hotel_clusters","rb") as file:
         hotel_clusters.extend(pickle.load(file))
     print("processed",chunkcount)
+
+n = len(is_bookings)
 print(len(is_bookings))
 print(len(user_location_countries))
 print(len(user_location_regions))
@@ -79,3 +78,55 @@ print(len(srch_adults_cnts))
 print(len(srch_children_cnts))
 print(len(srch_rm_cnts))
 print(len(hotel_clusters))
+featurevects = []
+outputs = []
+c=0
+cou=0
+naninds = [0]*n
+print("finished reading. starting re-organizing..")
+for i in nans:
+    naninds[i]=1
+for i in range(n):
+    if naninds[i]==1:
+        continue
+    vect = [stay[i],user_location_countries[i],user_location_regions[i],user_location_cities[i],srch_destination_type_ids[i],hotel_continents[i],hotel_countries[i],hotel_markets[i],srch_adults_cnts[i],srch_children_cnts[i],srch_rm_cnts[i]]
+    output = [0]*100
+    if is_bookings[i]==1:
+        output[hotel_clusters[i]] = 1
+    else:
+        output[hotel_clusters[i]] = 0.8
+    featurevects.append(vect)
+    outputs.append(output)
+    c+=1
+    if c==100000:
+        c=0
+        with open("feature_vects/"+str(cou)+".data","wb") as file:
+            pickle.dump(featurevects,file)
+        with open("vect_outputs/"+str(cou)+".data","wb") as file:
+            pickle.dump(outputs,file)
+        print("wrote data:",cou,len(featurevects),len(outputs))
+        featurevects=[]
+        outputs=[]
+        cou+=1
+if c!=0:
+    with open("feature_vects/"+str(cou)+".data","wb") as file:
+        pickle.dump(featurevects,file)
+    with open("vect_outputs/"+str(cou)+".data","wb") as file:
+        pickle.dump(outputs,file)
+    print("wrote data:",cou)
+    featurevects=[]
+    outputs=[]
+    cou+=1
+is_bookings=[]
+user_location_countries=[]
+user_location_regions=[]
+user_location_cities=[]
+srch_destination_type_ids=[]
+hotel_continents=[]
+hotel_countries=[]
+hotel_markets=[]
+srch_adults_cnts=[]
+srch_children_cnts=[]
+srch_rm_cnts=[]
+hotel_clusters=[]
+

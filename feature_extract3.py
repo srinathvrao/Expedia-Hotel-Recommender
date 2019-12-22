@@ -6,7 +6,7 @@ import pickle
 
 print("starting to read train")
 chunksize = 10 ** 6
-train = pd.read_csv("train.csv",chunksize=chunksize,usecols=["is_booking","hotel_cluster",'user_location_country',"user_location_region","user_location_city","srch_destination_type_id","hotel_continent","hotel_country","hotel_market","srch_adults_cnt","srch_children_cnt","srch_rm_cnt","srch_ci","srch_co"])
+train = pd.read_csv("../Expedia_Dataset/train.csv",chunksize=chunksize,usecols=["is_booking","hotel_cluster",'user_location_country',"user_location_region","user_location_city","srch_destination_type_id","hotel_continent","hotel_country","hotel_market","srch_adults_cnt","srch_children_cnt","srch_rm_cnt","srch_ci","srch_co","user_id","srch_destination_id"])
 print("read train.")
 
 checkin=[]
@@ -48,6 +48,13 @@ max_hotel_clusters = 0
 srch_rm_cnts = []
 max_srch_rm = 0
 chunkcount=0
+
+user_ids = []
+max_user_id = 0
+
+srch_destination_ids=[]
+max_srch_dstn_id = 0
+
 for chunk in train:
 	count = 0
 	# date is yyyy-mm-dd
@@ -69,7 +76,14 @@ for chunk in train:
 			checkout.append(d0)
 	for c in chunk['is_booking']:
 		is_bookings.append(c)
-
+	for c in chunk["user_id"]:
+		user_ids.append(c)
+		if c>max_user_id:
+			max_user_id = c
+	for c in chunk["srch_destination_id"]:
+		srch_destination_ids.append(c)
+		if c>max_srch_dstn_id:
+			max_srch_dstn_id = c
 	for c in chunk['user_location_country']:
 		user_location_countries.append(c)
 		if c>max_user_loc_ctry:
@@ -125,15 +139,21 @@ for chunk in train:
 	chunkcount+=1
 	s=""
 	if chunkcount<10:
-		s = "0"+str(chunkcount)
+		s = "features/0"+str(chunkcount)
 	else:
-		s = str(chunkcount)
+		s = "features/"+str(chunkcount)
 	with open(s+"ci","wb") as file:
 		pickle.dump(checkin,file)
 	with open(s+"co","wb") as file:
 		pickle.dump(checkout,file)
 	with open(s+"isbook","wb") as file:
 		pickle.dump(is_bookings,file)
+	with open(s+"userid","wb") as file:
+		pickle.dump(user_ids,file)
+	user_ids = []
+	with open(s+"srch_dstn_id","wb") as file:
+		pickle.dump(srch_destination_ids,file)
+	srch_destination_ids = []
 	is_bookings=[]
 	with open(s+"user_country","wb") as file:
 		pickle.dump(user_location_countries,file)
@@ -185,6 +205,8 @@ for chunk in train:
 	checkout=[]
 	checkin=[]
 	print("processed",chunkcount)
+print("max_user_id=",max_user_id)
+print("max_srch_dstn_id=",max_srch_dstn_id)
 print("max_hotel_clusters=",max_hotel_clusters)
 print("max_day=",max_day)
 print("max_user_loc_ctry=",max_user_loc_ctry)
