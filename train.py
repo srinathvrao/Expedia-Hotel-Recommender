@@ -185,7 +185,7 @@ for chunk in train:
 	checkout=[]
 	checkin=[]
 	chunkcount+=1
-    print("processed",chunkcount)
+	print("processed",chunkcount)
 	
 print("max_hotel_clusters=",max_hotel_clusters)
 print("max_day=",max_day)
